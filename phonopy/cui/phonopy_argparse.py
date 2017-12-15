@@ -89,6 +89,7 @@ def get_parser():
         force_constants=None,
         force_sets=None,
         force_sets_zero=None,
+        fplo_mode=False,
         fmax=None,
         fmin=None,
         frequency_conversion_factor=None,
@@ -264,6 +265,9 @@ def get_parser():
     parser.add_argument(
         "--fpitch", dest="fpitch", type=float,
         help="Frequency pitch used for DOS or moment calculation")
+    parser.add_argument(
+        "--fplo", dest="fplo_mode", action="store_true",
+        help="Invoke fplo mode")
     parser.add_argument(
         "--gc", "--gamma-center", dest="is_gamma_center", action="store_true",
         help="Set mesh as Gamma center")

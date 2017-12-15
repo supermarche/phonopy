@@ -48,6 +48,7 @@ class Symmetry(object):
         self._dataset = None
         self._wyckoff_letters = None
         self._map_atoms = None
+        self._transformation_matrix = None
 
         magmom = cell.get_magnetic_moments()
         if type(magmom) is np.ndarray:
@@ -173,6 +174,7 @@ class Symmetry(object):
         self._wyckoff_letters = self._dataset['wyckoffs']
 
         self._map_atoms = self._dataset['equivalent_atoms']
+        self._transformation_matrix = self._dataset['transformation_matrix']
 
     def _set_symmetry_operations_with_magmoms(self):
         cell = (self._cell.get_cell(),

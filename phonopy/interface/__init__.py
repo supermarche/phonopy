@@ -100,6 +100,12 @@ def read_crystal_structure(filename=None,
         unitcell, conv_numbers = read_crystal(unitcell_filename)
         return unitcell, (unitcell_filename, conv_numbers)
 
+    if interface_mode == 'fplo':
+        from phonopy.interface.fplo import read_fplo
+        unitcell, conv_numbers = read_fplo(unitcell_filename)
+        return unitcell, (unitcell_filename, conv_numbers)
+
+
 def get_default_cell_filename(interface_mode, yaml_mode):
     if yaml_mode:
         return "POSCAR.yaml"
@@ -117,6 +123,9 @@ def get_default_cell_filename(interface_mode, yaml_mode):
         return "unitcell.inp"
     if interface_mode == 'crystal':
         return "crystal.o"
+    if interface_mode == 'fplo':
+        return "=.in"
+
 
 def get_default_physical_units(interface_mode):
     """Return physical units used for calculators
@@ -129,12 +138,13 @@ def get_default_physical_units(interface_mode):
     pwscf         : Ry,      au,        AMU,         Ry/au
     siesta        : eV,      au,        AMU,         eV/Angstroem
     CRYSTAL       : eV,      Angstrom,  AMU,         eV/Angstroem
+    FPLO          : Ha,      au,        AMU,         Ha/au
 
     """
 
     from phonopy.units import (Wien2kToTHz, AbinitToTHz, PwscfToTHz, ElkToTHz,
                                SiestaToTHz, VaspToTHz, CP2KToTHz, CrystalToTHz,
-                               Hartree, Bohr)
+                               FPLOToTHz, Hartree, Bohr)
 
     units = {'factor': None,
              'nac_factor': None,
@@ -172,8 +182,13 @@ def get_default_physical_units(interface_mode):
         units['factor'] = CrystalToTHz
         units['nac_factor'] = Hartree * Bohr
         units['distance_to_A'] = 1.0
+    elif interface_mode == 'fplo':
+        units['factor'] = FPLOToTHz
+        units['nac_factor'] = 1.0
+        units['distance_to_A'] = Bohr
 
     return units
+
 
 def create_FORCE_SETS(interface_mode,
                       force_filenames,
@@ -190,7 +205,8 @@ def create_FORCE_SETS(interface_mode,
         interface_mode == 'pwscf' or
         interface_mode == 'siesta' or
         interface_mode == 'cp2k' or
-        interface_mode == 'crystal'):
+        interface_mode == 'crystal' or
+        interface_mode == 'fplo'):
         disp_dataset = parse_disp_yaml(filename=disp_filename)
         num_atoms = disp_dataset['natom']
         num_displacements = len(disp_dataset['first_atoms'])
@@ -242,6 +258,7 @@ def create_FORCE_SETS(interface_mode,
 
     return 0
 
+
 def get_force_sets(interface_mode,
                    num_atoms,
                    num_displacements,
@@ -267,6 +284,8 @@ def get_force_sets(interface_mode,
         from phonopy.interface.cp2k import parse_set_of_forces
     elif interface_mode == 'crystal':
         from phonopy.interface.crystal import parse_set_of_forces
+    elif interface_mode == 'fplo':
+        from phonopy.interface.fplo import parse_set_of_forces
     else:
         return []
 
@@ -275,6 +294,7 @@ def get_force_sets(interface_mode,
                                      verbose=verbose)
 
     return force_sets
+
 
 def _check_number_of_files(num_displacements,
                            force_filenames,
@@ -288,6 +308,7 @@ def _check_number_of_files(num_displacements,
         return 1
     else:
         return 0
+
 
 def _subtract_residual_forces(force_sets):
     for i in range(1, len(force_sets)):

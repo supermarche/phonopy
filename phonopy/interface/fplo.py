@@ -63,10 +63,6 @@ def parse_set_of_forces(num_atoms,
         conf, cell = parse_disp_yaml(return_cell=True)
         ppy_lat = cell.get_cell()
 
-        # Get the transformation matrix.
-        #symmetry = Symmetry(cell)
-        #T = symmetry.get_dataset()["transformation_matrix"]
-
         # read the fplo output file
         f = open(fplo_filename, 'r')
         outf = f.readlines()
@@ -157,11 +153,6 @@ def read_fplo(filename):
                  cell=lattice,
                  scaled_positions=positions)
 
-#    symmetry = Symmetry(cell)
-#    cell = Atoms(numbers=symmetry.get_dataset()["std_types"],
-#                 cell=symmetry.get_dataset()["std_lattice"],
-#                 scaled_positions=symmetry.get_dataset()["std_positions"])
-
     return cell, False
 
 
@@ -230,25 +221,4 @@ def write_supercells_with_displacements(supercell,
             write_fplo("supercell-%03d" % (i + 1), cell)
 
     else:
-        print("Symmetrized supercells:")
-
-        for i, cell in enumerate(cells_with_displacements):
-            # find spacegroup
-            sym      = dict()
-            symmetry = Symmetry(cell, 1e-5)
-            sym["spg"] = symmetry.get_dataset()["number"]
-            print("  Supercell: {0:03d}".format(i+1))
-            print("    Spacegroup: " + symmetry.get_international_table())
-            print("    Number of non-equivalent atoms in %s-%03d/=.in: %d" % (
-                "supercell", i + 1, len(symmetry.get_independent_atoms())))
-
-
-            print(cell.get_cell())
-            print(symmetry.get_dataset()["std_lattice"])
-
-            # create cell with symmetry
-            ineq = np.array(symmetry.get_independent_atoms())
-            cell = Atoms(numbers=symmetry.get_dataset()["std_types"][ineq],
-                         cell=symmetry.get_dataset()["std_lattice"],
-                         scaled_positions=symmetry.get_dataset()["std_positions"][ineq])
-            write_fplo("supercell-%03d" % (i + 1), cell, sym)
+        raise NotImplementedError("Support besides space group 1 has not been implemented yet.")

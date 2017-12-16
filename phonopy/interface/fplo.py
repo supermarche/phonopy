@@ -118,7 +118,7 @@ def read_fplo(filename):
                 lfactor = 1.0/Bohr                                   # Angstroem
             else:
                 sys.exit("(EE) Length unit unknown: " + fplo_in[i+1])
-         
+
         # lattice constants
         if fplo_in[i].find("lattice_constants")+1:
             curl_pos = fplo_in[i].find("{")+1
@@ -148,7 +148,7 @@ def read_fplo(filename):
                 species[j]     = symbol_map[fplo_in[ind][indc-3:indc-1]]
                 positions[j,:] = list(map(float, fplo_in[ind][indc+2:indb].split(",")))
      
-    lattice = get_cell_matrix(a, b, c, alpha, beta, gamma)
+    lattice = get_cell_matrix(a*lfactor, b*lfactor, c*lfactor, alpha, beta, gamma)
     cell = Atoms(numbers=species,
                  cell=lattice,
                  scaled_positions=positions)
